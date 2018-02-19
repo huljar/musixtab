@@ -1,0 +1,256 @@
+% Extension for MusiXTeX - Guitar Tablatures
+%
+% This file contains some macros which extend MusiXTeX with some
+% common notations for guitar tablatures. It is recommended that
+% you use a 6-line system (assuming a 6-string guitar) and increase
+% the space between its staves, e.g.:
+%
+% \setlines16
+% \setsize1\largevalue
+\makeatletter
+
+% Clef symbol that displays "TAB" vertically (looks best with
+% \smallmusicsize)
+\def\tabclefsymbolsmall{\vtop to .75\Interligne{%
+  \vss%
+  \hbox to 2.5\Interligne{\hss\tinytype\bf T}%
+  \vskip -1\Interligne
+  \hbox to 2.5\Interligne{\hss\tinytype\bf A}%
+  \vskip -1\Interligne
+  \hbox to 2.5\Interligne{\hss\tinytype\bf B}}}
+
+% Display guitar string numbers on staves
+% 
+% Usage: \str{<string>}{<number>}
+%   <string>: string number between 1 and 6
+%   <number>: any number (or other text) to put onto the string
+%             (usually a fret number between 0 and 24)
+%
+% \str inserts horizontal space after the number (like other
+% MusiXTeX notes). To insert a non-spacing string note, use
+% \zstr.
+\def\strerr{\errmessage{str macro requires a string number from 1--6}}
+\def\zstr#1#2{%
+  \ifcase#1\relax\strerr
+  \or\def\@strnr{-1}%
+  \or\def\@strnr{1}%
+  \or\def\@strnr{3}%
+  \or\def\@strnr{5}%
+  \or\def\@strnr{7}%
+  \or\def\@strnr{9}%
+  \else\strerr
+  \fi
+  \cchar\@strnr{\tinytype\bf\roffset{.35}{#2}}}
+\def\str#1#2{\zstr{#1}{#2}\sk}
+
+% Insert a Palm Mute indicator (P.M.) starting at the current position.
+% 
+% Usage: \palmmute{<pitch>}{<length>}
+%   <pitch>: vertical level at which the palm mute is placed
+%   <length>: length of the line in multiples of \noteskip
+%
+% This will insert a palm mute indicator looking similar to this:
+%   P.M.-----------|
+% If <length> is sufficiently small, no line will be inserted, just
+%   P.M.
+\newtoks\@pmstring
+\chardef\@pmlinechar=45
+\chardef\@pmendchar=21
+\newdimen\@pmboxminwd
+\@pmboxminwd=2.3em
+\def\palmmute{\check@staff
+  \n@v\@pmlinechar \n@ii\@pmendchar\global\@pmstring={P.M.}\fi
+  \@drawpm}
+\def\@drawpm#1#2{\check@staff
+  \y@v#2\noteskip%
+  \ifnum #2<2
+  \zcharnote{#1}{\loff{\hbox\@to\@pmboxminwd{%
+    \@pminit}}}%
+  \else
+  \zcharnote{#1}{\loff{\hbox\@to\y@v{%
+    \@pminit\xleaders\hbox{\char\n@v}\hfill\mxsps\char\n@ii}}}%
+  \fi\fi}
+\def\@pminit{%
+  \setbox\w@rkbox\hbox{\tinytype\the\@pmstring}%
+  \box\w@rkbox}
+
+% Insert a Hammer On or Pull Off symbol.
+%
+% Usage: \hammeron{<pitch>}{<offset>}
+%        \pulloff{<pitch>}{<offset>}
+%  <pitch>: vertical level at which the symbol is placed
+%  <offset>: horizontal offset from the current position
+%            in note head widths
+%
+% \hammeron will insert an "H", while \pulloff will insert
+% a "P".
+\def\hammeron#1#2{%
+  \ccharnote{#1}{\tinytype\roffset{#2}{H}}}
+\def\pulloff#1#2{%
+  \ccharnote{#1}{\tinytype\roffset{#2}{P}}}
+
+% Insert a Natural Harmonics or Artifical Harmonics
+% indicator.
+%
+% Usage: \harmonics{<pitch>}{<offset>}
+%        \aharmonics{<pitch>}{<offset>}
+%  <pitch>: vertical level at which the symbol is placed
+%  <offset>: horizontal offset from the current position
+%            in note head widths
+%
+% \harmonics will insert "Harm.", while \aharmonics will
+% insert "A.H.".
+\def\harmonics#1#2{%
+  \ccharnote{#1}{\tinytype\roffset{#2}{Harm.}}}
+\def\aharmonics#1#2{%
+  \ccharnote{#1}{\tinytype\roffset{#2}{A.H.}}}
+
+% Insert a bend indicator at the current position.
+%
+% Usage: \bendhalf{<pitch>}{<textpitch>}{<offset>}
+%        \bendfull{<pitch>}{<textpitch>}{<offset>}
+%   <pitch>: vertical level at which the lower end of the
+%            bend curve is placed
+%   <textpitch>: vertical level at which the text is placed
+%   <offset>: horizontal offset from the current position
+%             in note head widths
+%
+% \bendhalf uses the text "1/2", while \bendfull uses the
+% text "Full".
+%
+% There are more commands like \Bendhalf, \Bendfull, and
+% \Bend, which allow full control over the curve parameters,
+% text etc. However, they should rarely be necessary.
+\newtoks\@bendslurid
+\newtoks\@bendstring
+\newtoks\@bendho
+\newtoks\@bendvo
+\newtoks\@bendht
+\newtoks\@bendvt
+\newtoks\@bendcur
+\newtoks\@bendang
+\@bendslurid={14}
+
+\def\@rstbendho{\global\@bendho={2}}
+\def\@rstbendvo{\global\@bendvo={2}}
+\def\@rstbendht{\global\@bendht={4}}
+\def\@rstbendvt{\global\@bendvt={6}}
+\def\@rstbendcur{\global\@bendcur={-.4}}
+\def\@rstbendang{\global\@bendang={.2}}
+\def\@rstbend{\@rstbendho\@rstbendvo\@rstbendht\@rstbendvt\@rstbendcur\@rstbendang}
+
+\def\@setbendstring#1{\global\@bendstring={#1}}
+\def\@setbendho#1{\global\@bendho={#1}}
+\def\@setbendvo#1{\global\@bendvo={#1}}
+\def\@setbendht#1{\global\@bendht={#1}}
+\def\@setbendvt#1{\global\@bendvt={#1}}
+\def\@setbendcur#1{\global\@bendcur={#1}}
+\def\@setbendang#1{\global\@bendang={#1}}
+
+\def\bendhalf{\check@staff
+  \@rstbend\@setbendstring{1/2}\fi
+  \@drawbend}
+\def\Bendhalf#1#2{\check@staff
+  \@rstbend\@setbendstring{1/2}%
+  \@setbendht{#1}\@setbendvt{#2}\fi
+  \@drawbend}
+\def\bendfull{\check@staff
+  \@rstbend\@setbendstring{Full}\fi
+  \@drawbend}
+\def\Bendfull#1#2{\check@staff
+  \@rstbend\@setbendstring{Full}%
+  \@setbendht{#1}\@setbendvt{#2}\fi
+  \@drawbend}
+\def\Bend#1#2#3#4#5#6#7{\check@staff
+  \@rstbend\@setbendstring{#1}%
+  \@setbendho{#2}\@setbendvo{#3}\@setbendht{#4}%
+  \@setbendvt{#5}\@setbendcur{#6}\@setbendang{#7}\fi
+  \@drawbend}
+\def\@drawbend#1#2#3{\check@staff
+  \roffset{#3}{\iSlur{\the\@bendslurid}{#1}{\the\@bendvo}{\the\@bendho}%
+  \tSlur{\the\@bendslurid}{#1}{\the\@bendvt}{\the\@bendht}{\the\@bendcur}{\the\@bendang}%
+  \ccharnote{#2}{\tinytype\roffset{\the\@bendho}{\the\@bendstring}}}%
+  \fi}
+
+% Insert a slide indicator at the current position.
+%
+% Usage: \gslide{<pitch>}{<length>}{<slope>}
+%        \gslidet{<pitch>}{<length>}{<slope>}{<textpitch>}{<textoffset>}
+%        \gSlide{<pitch>}{<voffset>}{<length>}{<slope>}
+%        \gSlidet{<pitch>}{<voffset>}{<length>}{<slope>}{<textpitch>}{<textoffset>}
+%   <pitch>: vertical level at which the beginning of the
+%            line is placed
+%   <voffset>: additional vertical offset (for fine-tuning
+%              the line position)
+%   <length>: length of the line (values smaller than 2
+%             may cause weird behavior)
+%   <slope>: slope of the line (should be in [-20,20] range)
+%   <textpitch>: vertical level at which the text is placed
+%   <textoffset>: horizontal offset from the current position
+%                 in note head widths for the text
+%
+% These commands insert a straight line. The text versions
+% additionally insert the text "sl." in italics.
+\newtoks\@gslidestring
+\newtoks\@gslideho
+\newtoks\@gslidevp
+\newtoks\@gslidevo
+\newtoks\@gslidelen
+\newtoks\@gslideslp
+\newtoks\@gslidestrho
+\newtoks\@gslidestrvp
+
+\def\@rstgslideho{\global\@gslideho={1.5}}
+\def\@rstgslidevp{\global\@gslidevp={m}}
+\def\@rstgslidevo{\global\@gslidevo={0}}
+\def\@rstgslidelen{\global\@gslidelen={3}}
+\def\@rstgslideslp{\global\@gslideslp={-10}}
+\def\@rstgslidestrho{\global\@gslidestrho={1.8}}
+\def\@rstgslidestrvp{\global\@gslidestrvp={p}}
+\def\@rstgslide{\@rstgslideho\@rstgslidevp\@rstgslidevo\@rstgslidelen\@rstgslideslp\@rstgslidestrho\@rstgslidestrvp}
+
+\def\@setgslidestring#1{\global\@gslidestring={#1}}
+\def\@setgslideho#1{\global\@gslideho={#1}}
+\def\@setgslidevp#1{\global\@gslidevp={#1}}
+\def\@setgslidevo#1{\global\@gslidevo={#1}}
+\def\@setgslidelen#1{\global\@gslidelen={#1}}
+\def\@setgslideslp#1{\global\@gslideslp={#1}}
+\def\@setgslidestrho#1{\global\@gslidestrho={#1}}
+\def\@setgslidestrvp#1{\global\@gslidestrvp={#1}}
+
+\def\gslide#1#2#3{\check@staff
+  \@rstgslide\@setgslidevp{#1}%
+  \@setgslidelen{#2}\@setgslideslp{#3}\fi
+  \@drawgslide}
+\def\gslidet#1#2#3#4#5{\check@staff
+  \@rstgslide\@setgslidevp{#1}%
+  \@setgslidelen{#2}\@setgslideslp{#3}%
+  \@setgslidestrvp{#4}\@setgslidestrho{#5}\@setgslidestring{sl.}\fi
+  \@drawgslide\@drawgslidestr}
+\def\gslideT#1#2#3#4#5#6{\check@staff
+  \@rstgslide\@setgslidevp{#1}%
+  \@setgslidelen{#2}\@setgslideslp{#3}%
+  \@setgslidestrvp{#4}\@setgslidestrho{#5}\@setgslidestring{#6}\fi
+  \@drawgslide\@drawgslidestr}
+\def\gSlide#1#2#3#4{\check@staff
+  \@rstgslide\@setgslidevp{#1}\@setgslidevo{#2}%
+  \@setgslidelen{#3}\@setgslideslp{#4}\fi
+  \@drawgslide}
+\def\gSlidet#1#2#3#4#5#6{\check@staff
+  \@rstgslide\@setgslidevp{#1}\@setgslidevo{#2}%
+  \@setgslidelen{#3}\@setgslideslp{#4}%
+  \@setgslidestrvp{#5}\@setgslidestrho{#6}\@setgslidestring{sl.}\fi
+  \@drawgslide\@drawgslidestr}
+\def\gSlideT#1#2#3#4#5#6#7{\check@staff
+  \@rstgslide\@setgslidevp{#1}\@setgslidevo{#2}%
+  \@setgslidelen{#3}\@setgslideslp{#4}%
+  \@setgslidestrvp{#5}\@setgslidestrho{#6}\@setgslidestring{#7}\fi
+  \@drawgslide\@drawgslidestr}
+\def\@drawgslide{\check@staff
+  \zcharnote{\the\@gslidevp}{\roffset{\the\@gslideho}{\varline{\the\@gslidevo}{\the\@gslidelen\qn@width}{\the\@gslideslp}}}%
+  \fi}
+\def\@drawgslidestr{\check@staff
+  \zcharnote{\the\@gslidestrvp}{\tinytype\it\roffset{\the\@gslidestrho}{\the\@gslidestring}}%
+  \fi}
+
+\makeatother
