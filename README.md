@@ -20,9 +20,21 @@ increase the space between its staves, e.g.:
 \setsize1\largevalue
 ```
 
-## Manual
+# Table of Contents
 
-### Fret numbers
+* [Manual](#manual)
+   * [Fret numbers](#fret-numbers)
+   * [Clef symbol](#clef-symbol)
+   * [Palm Mute](#palm-mute)
+   * [Hammer On, Pull Off, (Artificial) Harmonics](#hammer-on-pull-off-artificial-harmonics)
+   * [Bends](#bends)
+   * [Slides](#slides)
+* [MusiXTeX](#musixtex)
+* [License](#license)
+
+# Manual
+
+## Fret numbers
 
 Typesetting fret numbers onto the guitar strings is probably what you will do
 the most when writing guitar tablatures. For this, there are two commands
@@ -40,7 +52,7 @@ where `<string>` is string number between 1 and 6, and `<number>` is any number
 (or other text) to put onto the string (usually a fret number between 0 and
 24).
 
-### Clef symbol
+## Clef symbol
 
 If you want to display a special **TAB** clef for your tablature staves, use
 `\tabclefsymbolsmall`. It displays **TAB** vertically at the beginning of the
@@ -52,7 +64,7 @@ Setting this clef for e.g. the first (lowest) instrument looks like this:
 \setclefsymbol1{\tabclefsymbolsmall}
 ```
 
-### Palm Mute
+## Palm Mute
 
 You can typeset a Palm Mute (P.M.) indicator starting at the current position.
 This will insert **P.M.** followed by a dashed line.
@@ -73,7 +85,7 @@ However, if `<length>` is sufficiently small, no line will be inserted, just
 P.M.
 ```
 
-### Hammer On, Pull Off, (Artificial) Harmonics
+## Hammer On, Pull Off, (Artificial) Harmonics
 
 For Hammer On, Pull Off, Natural Harmonics, and Artificial Harmonics,
 there are macros which insert the corresponding symbol at the current
@@ -93,7 +105,7 @@ widths.
 The symbols are: **H** for Hammer On, **P** for Pull Off **Harm.** for Natural
 Harmonics, and **A.H.** for Artificial Harmonics (aka. Pinch Harmonics).
 
-### Bends
+## Bends
 
 Bends in MusiXTab are indicated by a curved line going up. Both Half and Full
 Bends are supported. The command should be placed right in front of the note
@@ -115,7 +127,7 @@ There are additional commands like `\Bendhalf`, `\Bendfull`, and `\Bend`, which
 allow full control over the curve parameters, text etc. However, they should
 rarely be necessary.
 
-### Slides
+## Slides
 
 Slides are a bit more complicated than the other macros, even though they just
 produce a straight line with some text. The slide macro should be placed right
@@ -142,12 +154,12 @@ As you may have guessed, only the commands ending on **t** produce any text.
 The others insert just a line. This allows scenarios where two notes are slided
 at the same time, but you only want to insert the ***sl.*** text once.
 
-## MusiXTeX
+# MusiXTeX
 
 For more information on MusiXTeX, check out the official documentation
 [here](http://icking-music-archive.org/software/musixtex/musixdoc.pdf).
 
-## License
+# License
 
 MusiXTab is licensed under the GNU General Public License v3. For more
 information, see the [LICENSE.md](LICENSE.md) file.
