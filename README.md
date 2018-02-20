@@ -1,10 +1,12 @@
 # MusiXTab - A MusiXTeX extension for guitar tablatures
 
 MusiXTab is a small TeX file containing some useful macros for guitar tablature
-typesetting. It must be used together with the MusiXTeX core package:
+typesetting. It must be used together with the MusiXTeX core package and
+MusiXps:
 
 ```tex
 \input musixtex
+\input musixps
 \input musixtab
 ```
 
